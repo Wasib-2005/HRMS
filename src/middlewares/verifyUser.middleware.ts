@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express'
 
-export const authMiddleware = async (
+export const verifyUserMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -28,11 +28,15 @@ export const authMiddleware = async (
     readAsset: true,
     updateAsset: true,
     restoreAsset: true,
-    deleteAsset: true
+    deleteAsset: true,
+
+    createHoliday: true,
+    deleteHoliday: true,
+    readHoliday: true
   }
 
   next()
 }
 
-export const verifyUser = authMiddleware
-export default authMiddleware
+export const verifyUser = verifyUserMiddleware
+export default verifyUserMiddleware

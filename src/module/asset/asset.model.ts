@@ -1,7 +1,7 @@
-import mongoose from 'mongoose'
+import  { model, Query, Schema } from 'mongoose'
 import type { AssetInterface } from './asset.interface.js'
 
-const assetSchema = new mongoose.Schema<AssetInterface>(
+const assetSchema = new Schema<AssetInterface>(
   {
     assetName: {
       type: String,
@@ -29,12 +29,13 @@ const assetSchema = new mongoose.Schema<AssetInterface>(
       default: 0,
       min: [0, 'Quantity cannot be negative']
     },
+    
     updatedBy: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'User'
     },
     createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'User',
       required: true
     },
@@ -48,7 +49,7 @@ const assetSchema = new mongoose.Schema<AssetInterface>(
       default: null
     },
     deletedBy: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'User',
       default: null
     }
@@ -75,7 +76,7 @@ assetSchema.index(
 // --- SOFT DELETE MIDDLEWARE ---
 assetSchema.pre(
   /^find/,
-  function (this: mongoose.Query<any, AssetInterface>, next) {
+  function (this: Query<any, AssetInterface>, next) {
     const options = this.getOptions()
     if (!options.includeDeleted) {
       this.where({ isDeleted: false })
@@ -84,5 +85,5 @@ assetSchema.pre(
   }
 )
 
-export const Asset = mongoose.model<AssetInterface>('Asset', assetSchema)
+export const Asset = model<AssetInterface>('Asset', assetSchema)
 export default Asset

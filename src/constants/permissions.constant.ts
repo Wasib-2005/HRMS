@@ -28,7 +28,15 @@ export const PERMISSIONS_LIST = [
   'readAsset',
   'updateAsset',
   'deleteAsset',
-  'restoreAsset'
+  'restoreAsset',
+
+  // Read Holidays data
+  'readHolidayList',
+  'readHoliday',
+  'createHoliday',
+  'updateHoliday',
+  'deleteHoliday',
+  'restoreHoliday'
 ] as const
 
 // Automatically derive the TypeScript type from the array

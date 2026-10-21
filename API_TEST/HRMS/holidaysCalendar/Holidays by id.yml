@@ -1,0 +1,16 @@
+info:
+  name: Holidays by id
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: http://localhost:5000/api/holiday/6ad8e21c37eea2939bdbe806
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
