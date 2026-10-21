@@ -1,0 +1,188 @@
+Adding QOL
+
+
+=====================================================
+Global error handler
+=====================================================
+File: src/middlewares/errorHandler.middleware.ts
+Registered LAST in src/app.ts (after notFound), so it catches everything.
+
+Also added: src/middlewares/notFound.middleware.ts
+Unknown route -> 404 "Not Found - <url>" -> passed to the error handler.
+
+Code:
+
+export const errorHandler = (
+  err: any,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const statusCode = err.statusCode || 500
+  const message = err.message || 'Internal Server Error'
+
+  logger.error({
+    statusCode,
+    message,
+    stack: err.stack
+  })
+
+  res.status(statusCode).json({
+    success: false,
+    status: statusCode,
+    message: message
+  })
+}
+
+Error response shape:
+{ success: false, status: 400, message: "What message" }
+(Stack is logged on the server only, never sent to the client.)
+
+How to use:
+
+export const controller = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (true) {
+      const error: any = new Error('What message')
+      error.statusCode = 400 // <- number, not string
+      return next(error) // <- pass to global error handler
+    }
+  } catch (error) {
+    next(error) // <- pass to global error handler
+  }
+}
+
+Helpers also available in src/utility/ (exported from utility/index):
+- ApiError(statusCode, message)  -> custom error with statusCode
+    throw new ApiError(404, 'Role not found')
+- catchAsync(fn)  -> wraps async handler, removes try/catch boilerplate
+    router.get('/', catchAsync(controller))
+- sendResponse(res, { statusCode, success, message?, data? })  -> standard JSON response
+
+
+=====================================================
+Global logging
+=====================================================
+File: src/utility/logger.ts
+Also re-exported from src/config/logger.config.ts and src/config/index.ts
+
+Behavior:
+- LOG_LEVEL env filters output: debug < info < warn < error (default: info)
+- development -> readable console output with [User: name] tag
+- production  -> one JSON line per log (timestamp, level, ...data, environment)
+
+Code:
+
+interface LogDataInterface {
+  [key: string]: any
+}
+
+const NODE_ENV = process.env.NODE_ENV || 'development'
+const LOG_LEVEL = process.env.LOG_LEVEL || 'info'
+
+// Define priority numbers for filtering
+const LOG_LEVELS: Record<string, number> = {
+  debug: 0,
+  info: 1,
+  warn: 2,
+  error: 3
+}
+
+const shouldLog = (level: string): boolean => {
+  const currentLevel = LOG_LEVEL.toLowerCase()
+  const targetLevel = level.toLowerCase()
+
+  const currentPriority = LOG_LEVELS[currentLevel] ?? 1 // default to info (1)
+  const targetPriority = LOG_LEVELS[targetLevel] ?? 1
+
+  return targetPriority >= currentPriority
+}
+
+const formatAndPrint = (level: string, logData: LogDataInterface) => {
+  // Skip if the log level is lower than the configured LOG_LEVEL
+  if (!shouldLog(level)) return
+
+  const timestamp = new Date().toISOString()
+
+  if (NODE_ENV === 'production') {
+    const logEntry = {
+      timestamp,
+      level: level.toUpperCase(),
+      ...logData,
+      environment: NODE_ENV
+    }
+    console.log(JSON.stringify(logEntry))
+  } else {
+    const { userId, username, message, data, ...rest } = logData
+    const userInfo = userId ? `[User: ${username || userId}]` : ''
+    const colorTag =
+      level === 'error' ? '[ERROR]' : level === 'warn' ? ' [WARN]' : '[INFO]'
+
+    console.log(`${colorTag} [${timestamp}] ${userInfo} ${message || ''}`)
+
+    if (data !== undefined) {
+      console.log('Data:', data)
+    }
+
+    if (Object.keys(rest).length > 0) {
+      console.log('Metadata:', rest)
+    }
+  }
+}
+
+export const logger = {
+  info: (logData: LogDataInterface) => formatAndPrint('info', logData),
+  error: (logData: LogDataInterface) => formatAndPrint('error', logData),
+  warn: (logData: LogDataInterface) => formatAndPrint('warn', logData),
+  debug: (logData: LogDataInterface) => formatAndPrint('debug', logData)
+}
+
+How to use:
+
+import { logger } from '../../utility/logger.js'
+
+logger.info({            // <- level: info / warn / error / debug
+  message: 'Deleting role',
+  userId,                // <- shown as [User: username] in dev
+  username,
+  roleId                 // <- any extra field goes to Metadata
+})
+
+
+=====================================================
+Role management
+=====================================================
+Base path: /api/roles
+Files: src/module/role/
+  role.route.ts, role.controller.ts, role.service.ts,
+  role.model.ts, role.interface.ts
+Flow: route -> controller -> service -> model
+
+Endpoints:
+  POST   /api/roles                 Create role          (createRole)
+  GET    /api/roles                 List roles           (readRoleList)   ?page=1&limit=10
+  GET    /api/roles/recycle_bin     List deleted roles   (readRole)
+  GET    /api/roles/:id             Get one role         (readRole)
+  PUT    /api/roles/:id             Update role          (updateRole)
+  DELETE /api/roles/:id             Soft delete role     (deleteRole)
+  PATCH  /api/roles/:id/restore     Restore role         (restoreRole)
+
+Notes:
+- Delete is SOFT delete (isDeleted, deletedAt, deletedBy), not permanent.
+- Soft-delete pre-find middleware hides deleted roles automatically.
+  Use .setOptions({ includeDeleted: true }) to bypass.
+- Role name is unique only among non-deleted roles (partial unique index),
+  so a deleted role's name can be reused.
+- Create checks for duplicate name -> 400 "Role already exists."
+- Invalid ObjectId -> 400 "Invalid Role ID format."
+- Not found -> 404 "Role not found."
+- Role has a permissions object built from PERMISSIONS_LIST (all default false).
+- '/recycle_bin' is placed BEFORE '/:id' in the router on purpose.
+
+Tested:
+  Create role  - POST   /api/roles                       ok
+  Get roles    - GET    /api/roles                       ok
+  Get one role - GET    /api/roles/6ad47d6e4af4dcb71a01a2f3   ok
+  Update role  - PUT    /api/roles/6ad47d6e4af4dcb71a01a2f3   ok
+  Delete role  - DELETE /api/roles/6ad47d6e4af4dcb71a01a2f3   ok (soft delete)
+  recycle_bin / restore: not logged as tested yet
