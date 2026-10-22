@@ -53,6 +53,7 @@ graph TD
     subgraph Feature Modules ["src/module/"]
         CentralRouter --> RoleRoute["role/role.route.ts (/roles)"]
         CentralRouter --> AssetRoute["asset/asset.route.ts (/assets)"]
+        CentralRouter --> DepartmentRoute["department/department.route.ts (/departments)"]
         CentralRouter --> AuthRoute["auth/auth.route.ts (/me)"]
         CentralRouter --> HealthRoute["health/health.route.ts (/health)"]
     end
@@ -64,20 +65,24 @@ graph TD
     
     RoleRoute --> AuthMiddleware --> VerifyPermissions --> RoleCtrl["role/role.controller.ts"]
     AssetRoute --> AuthMiddleware --> VerifyPermissions --> AssetCtrl["asset/asset.controller.ts"]
+    DepartmentRoute --> AuthMiddleware --> VerifyPermissions --> DepartmentCtrl["department/department.controller.ts"]
     AuthRoute --> AuthCtrl["auth/auth.controller.ts"]
     HealthRoute --> HealthCtrl["health/health.controller.ts"]
     
     subgraph Business & Data Access Layer
         RoleCtrl --> RoleSvc["role/role.service.ts"]
         AssetCtrl --> AssetSvc["asset/asset.service.ts"]
+        DepartmentCtrl --> DepartmentSvc["department/department.service.ts"]
         AuthCtrl --> AuthSvc["auth/auth.service.ts"]
         
         RoleSvc --> RoleModel["role/role.model.ts (Mongoose)"]
         AssetSvc --> AssetModel["asset/asset.model.ts (Mongoose)"]
+        DepartmentSvc --> DepartmentModel["department/department.model.ts (Mongoose)"]
     end
     
     RoleModel --> MongoDB[(MongoDB Database)]
     AssetModel --> MongoDB
+    DepartmentModel --> MongoDB
     BetterAuthHandler --> NativeMongoAdapter["@better-auth/mongo-adapter"] --> MongoDB
     
     ExpressApp --> NotFound["notFound.middleware.ts (404 Catch-All)"]
@@ -136,6 +141,13 @@ src/
 │   │   ├── asset.route.ts               # Route definitions & permission bindings
 │   │   ├── asset.model.ts               # Mongoose schema, partial index & soft-delete hook
 │   │   └── asset.interface.ts           # TypeScript interfaces for Asset entity
+│   │
+│   ├── department/                      # Department Management Module
+│   │   ├── department.controller.ts     # HTTP handlers for departments
+│   │   ├── department.service.ts        # Database operations & business rules for departments
+│   │   ├── department.route.ts          # Route definitions & permission bindings
+│   │   ├── department.model.ts          # Mongoose schema, partial index & soft-delete hook
+│   │   └── department.interface.ts      # TypeScript interfaces for Department entity
 │   │
 │   ├── assetAssign/                     # Asset Assignment Module (Foundation)
 │   │   ├── assetAssign.controller.ts    # Assignment handlers
@@ -324,11 +336,23 @@ All routes are mounted under the `/api` prefix.
 | `DELETE` | `/api/assets/:id` | Required | `deleteAsset` | Soft-delete an asset. |
 | `PATCH` | `/api/assets/:id/restore`| Required | `restoreAsset` | Restore a deleted asset back to inventory. |
 
+### 5. Department Management (`/api/departments`)
+
+| Method | Endpoint | Auth | Required Permissions | Description |
+|---|---|---|---|---|
+| `GET` | `/api/departments` | Required | `readDepartmentList` | List active departments with pagination (`?page=1&limit=10`). |
+| `GET` | `/api/departments/recycle_bin` | Required | `readDepartment` | List soft-deleted departments in recycle bin. |
+| `GET` | `/api/departments/:id` | Required | `readDepartment` | Retrieve specific department by ObjectId. |
+| `POST` | `/api/departments` | Required | `createDepartment` | Create a new department. |
+| `PUT` | `/api/departments/:id` | Required | `updateDepartment` | Update department details or status. |
+| `DELETE` | `/api/departments/:id` | Required | `deleteDepartment` | Soft-delete a department. |
+| `PATCH` | `/api/departments/:id/restore`| Required | `restoreDepartment` | Restore a deleted department back to active status. |
+
 ---
 
 ## Permission Matrix (RBAC)
 
-The system defines 23 permissions across 4 functional domains in `src/constants/permissions.constant.ts`:
+The system defines 24 permissions across 4 functional domains in `src/constants/permissions.constant.ts`:
 
 | Domain | Permission Key | Description |
 |---|---|---|
@@ -348,6 +372,7 @@ The system defines 23 permissions across 4 functional domains in `src/constants/
 | | `createDepartment` | Create a new department |
 | | `updateDepartment` | Update department details |
 | | `deleteDepartment` | Soft delete a department |
+| | `restoreDepartment` | Restore a deleted department |
 | **Assets** | `readAssetList` | View asset inventory |
 | | `readAsset` | View single asset details or recycle bin |
 | | `createAsset` | Register a new asset |
@@ -397,6 +422,22 @@ The system defines 23 permissions across 4 functional domains in `src/constants/
 }
 ```
 - **Indexes**: `{ serialNumber: 1 }` unique partial index where `serialNumber` exists and `isDeleted: false`.
+
+### Department Schema
+```typescript
+{
+  name: { type: String, required: true, trim: true },
+  description: { type: String, default: '', trim: true },
+  status: { type: String, enum: ['active', 'inactive', 'disabled'], default: 'active', index: true },
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  updatedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+  isDeleted: { type: Boolean, default: false, index: true },
+  deletedAt: { type: Date, default: null },
+  deletedBy: { type: Schema.Types.ObjectId, ref: 'User', default: null },
+  timestamps: true
+}
+```
+- **Indexes**: `{ name: 1 }` unique partial index where `isDeleted: false`.
 
 ### AssetAssign Schema
 ```typescript
@@ -473,6 +514,14 @@ Pre-configured [Bruno](https://www.usebruno.com/) API collection files are maint
   - `Update Assert.yml`: `PUT /api/assets/:id`
   - `Delete Assert.yml`: `DELETE /api/assets/:id`
   - `Restore Assert.yml`: `PATCH /api/assets/:id/restore`
+- **Department Management (`API_TEST/HRMS/Department/`)**:
+  - `AllDepartment.yml`: `GET /api/departments`
+  - `Department By ID.yml`: `GET /api/departments/:id`
+  - `Department recycle bin.yml`: `GET /api/departments/recycle_bin`
+  - `Create Department.yml`: `POST /api/departments`
+  - `Update Department.yml`: `PUT /api/departments/:id`
+  - `Delete Department.yml`: `DELETE /api/departments/:id`
+  - `Restore Department.yml`: `PATCH /api/departments/:id/restore`
 
 To run tests in Bruno:
 1. Open Bruno and select **Open Collection**.

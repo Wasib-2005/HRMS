@@ -1,0 +1,25 @@
+info:
+  name: Transfer Department
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://localhost:5000/api/department-assign/transfer
+  body:
+    type: json
+    data: |-
+      {
+        "userId": "671648e2a8c1a79f82d139fe",
+        "toDeptId": "ENG-410",
+        "fromDeptId": "SSE-535",
+        "status": "active"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

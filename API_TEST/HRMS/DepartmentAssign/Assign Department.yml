@@ -1,0 +1,24 @@
+info:
+  name: Assign Department
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:5000/api/department-assign
+  body:
+    type: json
+    data: |-
+      {
+        "userId": "671648e2a8c1a79f82d139fe",
+        "dept_id": "SSE-535",
+        "status": "active"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

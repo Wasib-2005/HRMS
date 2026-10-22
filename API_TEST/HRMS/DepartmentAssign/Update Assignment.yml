@@ -1,0 +1,26 @@
+info:
+  name: Update Assignment
+  type: http
+  seq: 7
+
+http:
+  method: PUT
+  url: http://localhost:5000/api/department-assign/:id
+  params:
+    - name: id
+      value: ""
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "status": "inactive"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

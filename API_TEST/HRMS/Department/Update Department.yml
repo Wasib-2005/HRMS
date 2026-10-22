@@ -1,0 +1,26 @@
+info:
+  name: Update Department
+  type: http
+  seq: 5
+
+http:
+  method: PUT
+  url: http://localhost:5000/api/departments/:id
+  params:
+    - name: id
+      value: ""
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "description": "Software Engineering, Cloud & Security"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

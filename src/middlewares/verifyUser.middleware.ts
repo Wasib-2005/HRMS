@@ -19,9 +19,12 @@ export const verifyUserMiddleware = async (
     updateRole: true,
     deleteRole: true,
     restoreRole: true,
-    readRole: true,
-    readDepartmentList: false,
-    createDepartment: false,
+    readDepartmentList: true,
+    createDepartment: true,
+    updateDepartment: true,
+    deleteDepartment: true,
+    restoreDepartment: true,
+    readDepartment: true,
 
     readAssetList: true,
     createAsset: true,
@@ -32,7 +35,14 @@ export const verifyUserMiddleware = async (
 
     createHoliday: true,
     deleteHoliday: true,
-    readHoliday: true
+    readHoliday: true,
+    assignDepartment: true,
+    transferDepartment: true,
+    readDepartmentAssignList: true,
+    readDepartmentAssign: true,
+    updateDepartmentAssign: true,
+    deleteDepartmentAssign: true,
+    restoreDepartmentAssign: true
   }
 
   next()
