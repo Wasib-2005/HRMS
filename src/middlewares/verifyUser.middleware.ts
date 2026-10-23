@@ -42,7 +42,12 @@ export const verifyUserMiddleware = async (
     readDepartmentAssign: true,
     updateDepartmentAssign: true,
     deleteDepartmentAssign: true,
-    restoreDepartmentAssign: true
+    restoreDepartmentAssign: true,
+    readShift: true,
+    createShift: true,
+    updateShift: true,
+    deleteShift: true,
+    restoreShift: true
   }
 
   next()
