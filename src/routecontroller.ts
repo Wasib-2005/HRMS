@@ -13,8 +13,8 @@ const router: Router = Router()
 // Register module routes
 router.use('/roles', roleRoutes)
 router.use('/assets', assetRoutes)
-router.use('/holiday', holidayRoute)
-router.use('/shift', shiftRouter)
+router.use('/holidays', holidayRoute)
+router.use('/shifts', shiftRouter)
 
 router.use('/departments', departmentRoutes)
 router.use('/department-assign', departmentAssignRoutes)
