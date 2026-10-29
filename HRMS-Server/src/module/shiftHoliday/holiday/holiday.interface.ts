@@ -1,6 +1,6 @@
 import type { Types } from 'mongoose'
 
-export interface HolidaysInterface {
+export interface HolidayInterface {
   titleEn: string
   titleBn: string
   startDate: Date

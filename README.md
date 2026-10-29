@@ -148,7 +148,8 @@ Application endpoints are mounted under `/api`:
 | `/api/assets` | Asset inventory |
 | `/api/departments` | Departments |
 | `/api/department-assign` | Department assignments |
-| `/api/holiday` | Holiday calendar |
+| `/api/holidays` | Holiday calendar |
+| `/api/shifts` | Shift management |
 
 Most management endpoints require an authenticated user and the relevant permission. See the route files under `HRMS-Server/src/module/` for the individual operations and access requirements.
 

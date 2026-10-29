@@ -1,7 +1,7 @@
 import { Schema, model, Query } from 'mongoose'
-import type { HolidaysInterface } from './holiday.interface.js'
+import type { HolidayInterface } from './holiday.interface.js'
 
-const holidaysSchema = new Schema<HolidaysInterface>(
+const holidaySchema = new Schema<HolidayInterface>(
   {
     titleEn: {
       type: String,
@@ -61,16 +61,13 @@ const holidaysSchema = new Schema<HolidaysInterface>(
 )
 
 // --- SOFT DELETE MIDDLEWARE ---
-holidaysSchema.pre(
-  /^find/,
-  function (this: Query<any, HolidaysInterface>, next) {
-    const options = this.getOptions()
-    if (!options.includeDeleted) {
-      this.where({ isDeleted: false })
-    }
-    next()
+holidaySchema.pre(/^find/, function (this: Query<any, HolidayInterface>, next) {
+  const options = this.getOptions()
+  if (!options.includeDeleted) {
+    this.where({ isDeleted: false })
   }
-)
+  next()
+})
 
-const Holiday = model<HolidaysInterface>('Holiday', holidaysSchema)
+const Holiday = model<HolidayInterface>('Holiday', holidaySchema)
 export default Holiday
