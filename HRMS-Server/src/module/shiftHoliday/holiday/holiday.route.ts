@@ -1,7 +1,7 @@
 // --- Corrected Router Code ---
 import { Router } from 'express'
-import verifyUserMiddleware from '../../../middlewares/verifyUser.middleware'
-import { verifyPermissions } from '../../../middlewares'
+import verifyUserMiddleware from '../../../middlewares/verifyUser.middleware.js'
+import { verifyPermissions } from '../../../middlewares/index.js'
 import {
   createHolidayController,
   createHolidaysController,
@@ -9,7 +9,7 @@ import {
   getAllHolidaysController,
   getHolidayController,
   updateHolidayController
-} from './holiday.controller'
+} from './holiday.controller.js'
 
 const router: Router = Router()
 

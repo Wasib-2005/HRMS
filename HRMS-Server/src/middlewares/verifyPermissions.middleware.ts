@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express'
-import type { PermissionKey } from '../constants/permissions.constant'
-import { logger } from '../utility/logger'
+import type { PermissionKey } from '../constants/permissions.constant.js'
+import { logger } from '../utility/logger.js'
 
 const verifyPermissions = (requiredPermissions: PermissionKey[]) => {
   return (req: Request, res: Response, next: NextFunction) => {

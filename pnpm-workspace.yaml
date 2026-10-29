@@ -1,0 +1,6 @@
+packages:
+  - HRMS-Server
+  - HRMS-Ui
+allowBuilds:
+  esbuild: true
+  unrs-resolver: true

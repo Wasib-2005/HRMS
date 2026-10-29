@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express'
 import Holiday from './holiday.model.js'
-import { logger } from '../../../config'
+import { logger } from '../../../config/index.js'
 
 export const getAllHolidaysController = async (
   req: Request,
