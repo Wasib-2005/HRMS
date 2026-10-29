@@ -5,6 +5,8 @@
 		},
 		{
 			"path": "HRMS-Ui"
+		},	{
+			"path": "./"
 		},
 	],
 	"settings": {
