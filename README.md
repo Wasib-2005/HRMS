@@ -119,6 +119,15 @@ pnpm --filter hrms-ui add react-icons
 pnpm --filter hrms-server add <package-name>
 ```
 
+Or change into the app directory and add the dependency there:
+
+```bash
+cd HRMS-Ui
+pnpm add react-icons
+```
+
+Use `pnpm add` to add a package; `pnpm install` (or `pnpm i`) installs dependencies already listed in the manifest.
+
 With npm, target a workspace by its package name:
 
 ```bash
