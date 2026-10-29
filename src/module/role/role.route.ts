@@ -8,7 +8,7 @@ import {
   restoreRoleController,
   updateRoleController
 } from './role.controller.js'
-import { verifyUser } from '../../middlewares/auth.middleware.js'
+import { verifyUser } from '../../middlewares/verifyUser.middleware.js'
 import verifyPermissions from '../../middlewares/verifyPermissions.middleware.js'
 
 const router: Router = Router()

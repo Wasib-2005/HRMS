@@ -1,0 +1,110 @@
+HOLIDAY MODULE (HRMS-Server: src/module/shiftHoliday/holiday)
+=============================================================
+
+PURPOSE
+-------
+Manages company/public holidays in the HRMS. Provides CRUD APIs with
+permission checks, audit logging, and soft-delete support.
+
+FILES
+-----
+holiday.interface.ts   TypeScript type for a holiday document.
+holiday.model.ts       Mongoose schema/model + soft-delete middleware.
+holiday.controller.ts  Request handlers (business logic).
+holiday.route.ts       Express routes + auth/permission middleware.
+
+DATA MODEL (Holiday)
+--------------------
+- titleEn     (required) English title, trimmed, indexed
+- titleBn     (required) Bangla title, trimmed
+- startDate   (required) Holiday start date
+- endDate     (required) Holiday end date
+- type        (required) Holiday type (free-form string)
+- notes       (optional) Extra notes, trimmed
+- createdBy   (required) User ref who created it
+- updatedBy   User ref who last updated it
+- isDeleted   Soft-delete flag (default false, indexed)
+- deletedAt   Soft-delete timestamp (default null)
+- deletedBy   User ref who deleted it (default null)
+- createdAt / updatedAt  Added automatically (timestamps: true)
+
+SOFT DELETE BEHAVIOR
+--------------------
+A pre-find middleware (/^find/) automatically adds { isDeleted: false }
+to every find query, so soft-deleted records are hidden by default.
+Pass the option { includeDeleted: true } to bypass this filter.
+
+ENDPOINTS
+---------
+All routes require verifyUserMiddleware (logged-in user) and a specific
+permission via verifyPermissions.
+
+GET    /          [readHoliday]    List holidays
+GET    /:id       [readHoliday]    Get one holiday by ID
+POST   /          [createHoliday]  Create a single holiday
+POST   /many      [createHoliday]  Create one or many holidays (bulk)
+PUT    /:id       [updateHoliday]  Update a holiday
+DELETE /:id       [deleteHoliday]  Permanently delete a holiday
+
+CONTROLLER DETAILS
+------------------
+
+1) getAllHolidaysController
+   - Query params: year, month (1-12), limit, page
+   - If year is given: filters holidays whose startDate falls within that
+     year (UTC, Jan 1 - Dec 31).
+   - If year + month are given: filters to that month only (UTC).
+   - Note: month alone (without year) is ignored.
+   - Pagination is optional: applied only if limit or page is present.
+     Defaults: limit = 10, page = 1.
+   - Returns { success, message, data } with lean (plain) objects.
+     Message is "No holidays found." when the result is empty.
+
+2) getHolidayController
+   - Fetches one holiday by :id.
+   - Returns 404 if the ID is missing or no matching (non-deleted) holiday.
+
+3) createHolidayController
+   - Body: titleEn, titleBn, startDate, endDate, type, notes (optional).
+   - Returns 400 if any required field is missing.
+   - Sets createdBy to the current user.
+   - Returns 201 with the created holiday.
+                                                                                         <<--- might have to rethink here
+4) createHolidaysController
+   - Accepts either a single object or an array of objects.
+   - Returns 400 if the body is empty.
+   - Validates required fields for every entry; fails the whole request
+     with 400 if any entry is missing a field.
+   - Injects createdBy into each entry.
+   - Creates all with Holiday.create().
+   - Returns 201 with a count message for bulk or a single-item message.
+
+5) updateHolidayController
+   - Updates only the fields that were provided in the body
+     (titleEn, titleBn, startDate, endDate, type, notes).
+   - Always sets updatedBy to the current user.
+   - Uses findByIdAndUpdate with $set, new: true, runValidators: true.
+   - Returns 404 if the holiday is not found.
+
+6) deleteHolidayController
+   - PERMANENTLY deletes the holiday (hard delete) via findByIdAndDelete.
+   - Uses includeDeleted: true so soft-deleted records can also be removed.
+   - Returns 404 if not found; otherwise returns the deleted document.
+
+COMMON BEHAVIOR
+---------------
+- Every handler logs the action (message, userId, username, and relevant
+  details) using the shared logger for auditing.
+- Errors are passed to Express error middleware via next(error).
+- Validation errors set error.statusCode = 400 before calling next().
+- Response shape is always: { success: boolean, message: string, data? }
+
+NOTES / OBSERVATIONS
+--------------------
+- The model has soft-delete fields, but the DELETE endpoint does a hard
+  delete; the soft-delete fields are never set by the current code.
+- Bulk create's isBulk check is based on Array.isArray(body), so a single
+  object sent to /many returns the single-item message.
+- Update does not validate that endDate >= startDate.
+- Year/month filtering only checks startDate, so holidays that start
+  before a range but extend into it are not matched.

@@ -1,0 +1,165 @@
+=====================================================
+Permission control finished
+=====================================================
+Files:
+  src/middlewares/verifyUser.middleware.ts         (temp user bypass)
+  src/middlewares/verifyPermissions.middleware.ts  (RBAC guard)
+  src/constants/permissions.constant.ts            (permission list + types)
+  src/types/express.d.ts                           (req.userId, req.username, req.permissions)
+
+How to use (in router middleware):
+
+router.post('/', verifyUser, verifyPermissions(['what permission']), Controller)
+
+- verifyPermissions takes an array; user needs ALL listed permissions.
+- Permission names are typed (PermissionKey), so a typo is a compile error.
+- No permission -> 403 { message: 'Insufficient permissions' }
+- Every check is logged (url, required, user permissions, result).
+
+Adding a new permission:
+1. Add the string to PERMISSIONS_LIST in permissions.constant.ts
+2. Add it to req.permissions in verifyUser (for the temp user)
+3. Use it in verifyPermissions([...])
+
+Temp user verification bypassed:
+
+export const verifyUserMiddleware = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  // TODO: Implement user verification logic here
+
+  req.userId = '6ad4729e856ea46aefdb1ff3' // Placeholder for user verification logic
+
+  req.username = 'admin' // Placeholder for user verification logic
+
+  req.permissions = {
+    readEmployeeList: true,
+    createEmployee: false,
+    readRoleList: true,
+    createRole: true,
+    updateRole: true,   <--  add needed permission here
+    deleteRole: true,
+    restoreRole: true,
+    readRole: true,
+    readDepartmentList: false,
+    createDepartment: false,
+
+    readAssetList: true,
+    createAsset: true,
+    readAsset: true,
+    updateAsset: true,
+    restoreAsset: true,
+    deleteAsset: true
+  }
+
+  next()
+}
+
+export const verifyUser = verifyUserMiddleware
+export default verifyUserMiddleware
+
+Permission groups in PERMISSIONS_LIST:
+  Employee   : readEmployeeList, readEmployee, createEmployee, updateEmployee, deleteEmployee
+  Role       : readRoleList, readRole, createRole, updateRole, deleteRole, restoreRole
+  Department : readDepartmentList, readDepartment, createDepartment, updateDepartment, deleteDepartment
+  Asset      : readAssetList, assignAsset, createAsset, readAsset, updateAsset, deleteAsset, restoreAsset
+
+
+=====================================================
+Project restructure (feature-based modular)
+=====================================================
+Flow:
+  server.ts -> app.ts -> routecontroller.ts (/api) -> module router
+    -> verifyUser -> verifyPermissions -> controller -> service -> model -> MongoDB
+
+Layout:
+  src/
+    server.ts              boot: dotenv, DB connect, listen, SIGINT/SIGTERM shutdown
+    app.ts                 cors, better-auth handler, json parser, /api router, notFound, errorHandler
+    routecontroller.ts     mounts feature routers under /api
+    config/                env, database (5 retries), cors, auth (better-auth), logger
+    constants/             permissions.constant.ts
+    middlewares/           verifyUser, verifyPermissions, notFound, errorHandler
+    types/                 express.d.ts
+    utility/               logger, ApiError, catchAsync, sendResponse
+    module/<feature>/      <feature>.route / controller / service / model / interface
+
+Mounted routes (routecontroller.ts):
+  /api/roles    -> roleRoutes
+  /api/assets   -> assetRoutes
+  /api/health   -> healthRoutes
+  /api          -> authRoutes   (GET /api/me)
+
+Feature file roles:
+  route       endpoints + middleware
+  controller  req/res, status codes, validation, logging
+  service     queries and business logic
+  model       schema, indexes, soft-delete hook
+  interface   TypeScript types
+
+Important in app.ts:
+  Better-Auth handler (/api/auth/*) MUST be before express.json().
+
+Env variables:
+  PORT (5000), NODE_ENV, PRODUCTION, ALLOW_ORIGIN (comma separated),
+  MONGO_URI, BETTER_AUTH_SECRET, BETTER_AUTH_URL, LOG_LEVEL (info)
+
+
+=====================================================
+Auth (Better-Auth) + Health
+=====================================================
+Files: src/module/auth/, src/config/auth.config.ts, src/module/health/
+- Email + password enabled, MongoDB adapter.
+- trustedOrigins from ALLOW_ORIGIN (default localhost:5000, localhost:3000).
+
+Endpoints:
+  GET  /api/health                 Public. Server status check
+  GET  /api/me                     Session. Current session, 401 if none
+  POST /api/auth/sign-up/email     Better-Auth
+  POST /api/auth/sign-in/email     Better-Auth
+  POST /api/auth/sign-out          Better-Auth
+  GET  /api/auth/get-session       Better-Auth
+
+Note: verifyUser is still the temp bypass. It does NOT use the Better-Auth
+session yet.
+
+
+=====================================================
+Asset init
+=====================================================
+Base path: /api/assets
+Files: src/module/asset/
+  asset.route.ts, asset.controller.ts, asset.service.ts,
+  asset.model.ts, asset.interface.ts
+
+Endpoints:
+  POST   /api/assets                 Create asset          (createAsset)
+  GET    /api/assets                 List assets           (readAssetList)  ?page=1&limit=10
+  GET    /api/assets/recycle_bin     List deleted assets   (readAsset)
+  GET    /api/assets/:id             Get one asset         (readAsset)
+  PUT    /api/assets/:id             Update asset          (updateAsset)
+  DELETE /api/assets/:id             Soft delete asset     (deleteAsset)
+  PATCH  /api/assets/:id/restore     Restore asset         (restoreAsset)
+
+Fields:
+  assetName (required), description, serialNumber, status (active | inactive | disabled,
+  default active), qty (default 0, min 0), + createdBy / updatedBy / soft-delete fields
+
+Notes:
+- Soft delete, same pattern as roles.
+- serialNumber is unique only among non-deleted assets (partial unique index).
+- Create needs assetName -> else 400 "Asset name is required."
+- Not found -> 404 "Asset not found".
+
+Asset assign (scaffold only, TODO after frontend):
+  src/module/assetAssign/  model + interface done (asset, user, itemQty, status),
+  route / controller / service empty.
+
+
+=====================================================
+API testing
+=====================================================
+Added local api test via Bruno (Offline, open-source, alternative to Postman)
+Load the folder ./HRMS-Server/API_TEST/

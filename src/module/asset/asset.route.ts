@@ -8,7 +8,7 @@ import {
   restoreAssetController,
   updateAssetController
 } from './asset.controller.js'
-import { verifyUser } from '../../middlewares/auth.middleware.js'
+import { verifyUser } from '../../middlewares/verifyUser.middleware.js'
 import verifyPermissions from '../../middlewares/verifyPermissions.middleware.js'
 
 const router: Router = Router()
@@ -20,6 +20,13 @@ router.get(
   verifyPermissions(['readAssetList']),
   getAllAssetController
 )
+// --- SINGLE ASSET ROUTES ---
+router.get(
+  '/:id',
+  verifyUser,
+  verifyPermissions(['readAsset']),
+  getAssetController
+)
 
 // MUST be placed before '/:id' to prevent Express from treating 'recycle_bin' as an ID
 router.get(
@@ -27,14 +34,6 @@ router.get(
   verifyUser,
   verifyPermissions(['readAsset']),
   getAssetRecycleBinController
-)
-
-// --- SINGLE ASSET ROUTES ---
-router.get(
-  '/:id',
-  verifyUser,
-  verifyPermissions(['readAsset']),
-  getAssetController
 )
 
 router.post(

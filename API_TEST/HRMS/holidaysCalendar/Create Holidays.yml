@@ -1,0 +1,53 @@
+info:
+  name: Create Holidays
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: http://localhost:5000/api/holiday/many
+  body:
+    type: json
+    data: |-
+      [
+        {
+          "titleEn": "Independence Day",
+          "titleBn": "স্বাধীনতা দিবস",
+          "startDate": "2026-03-26T00:00:00.000Z",
+          "endDate": "2026-03-26T23:59:59.000Z",
+          "type": "National Holiday",
+          "notes": "Commemorates the declaration of independence of Bangladesh."
+        },
+        {
+          "titleEn": "Eid-ul-Fitr",
+          "titleBn": "ঈদুল ফিতর",
+          "startDate": "2026-03-20T00:00:00.000Z",
+          "endDate": "2026-03-22T23:59:59.000Z",
+          "type": "Religious Holiday",
+          "notes": "Major Islamic festival marking the end of Ramadan."
+        },
+        {
+          "titleEn": "Victory Day",
+          "titleBn": "বিজয় দিবস",
+          "startDate": "2026-12-16T00:00:00.000Z",
+          "endDate": "2026-12-16T23:59:59.000Z",
+          "type": "National Holiday",
+          "notes": "Commemorates the victory of the allied forces over the Pakistani forces."
+        },
+        {
+          "titleEn": "Christmas Day",
+          "titleBn": "বড়দিন",
+          "startDate": "2026-12-25T00:00:00.000Z",
+          "endDate": "2026-12-25T23:59:59.000Z",
+          "type": "Optional Holiday",
+          "notes": "Annual festival commemorating the birth of Jesus Christ."
+        }
+      ]
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

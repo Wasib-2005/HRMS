@@ -1,0 +1,23 @@
+info:
+  name: Update Holiday
+  type: http
+  seq: 5
+
+http:
+  method: PUT
+  url: http://localhost:5000/api/holiday/650c1f1e1f1a2b3c4d5e6f03
+  body:
+    type: json
+    data: |-
+      {
+          "titleEn": "Bengali New Year",
+          "updatedAt": "2026-01-10T08:00:00.000Z"
+        }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

@@ -2,7 +2,7 @@ import type { Types } from 'mongoose'
 
 export interface AssetInterface {
   assetName: string
-  description: string
+  description?: string
   status: 'active' | 'inactive' | 'disabled'
   serialNumber?: string
   qty?: number

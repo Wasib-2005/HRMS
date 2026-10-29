@@ -1,0 +1,42 @@
+info:
+  name: "Create shift "
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: http://localhost:5000/api/shifts/many
+  body:
+    type: json
+    data: |-
+      [
+        {
+          "shiftTitle": "Morning Shift",
+          "startAt": "08:00",
+          "endAt": "16:00",
+          "department": "665f1c2e8a1b2c3d4e5f6a01",
+          "offDay": 5
+        },
+        {
+          "shiftTitle": "Evening Shift",
+          "startAt": "16:00",
+          "endAt": "00:00",
+          "department": "665f1c2e8a1b2c3d4e5f6a01",
+          "offDay": 6
+        },
+        {
+          "shiftTitle": "Night Shift",
+          "startAt": "00:00",
+          "endAt": "08:00",
+          "department": "665f1c2e8a1b2c3d4e5f6a02",
+          "offDay": 7
+        }
+      ]
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

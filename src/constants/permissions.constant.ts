@@ -31,6 +31,14 @@ export const PERMISSIONS_LIST = [
   'deleteAsset',
   'restoreAsset',
 
+  // Read Holidays data
+  'readHolidayList',
+  'readHoliday',
+  'createHoliday',
+  'updateHoliday',
+  'deleteHoliday',
+  'restoreHoliday',
+
   // Department Assignment Data
   'assignDepartment',
   'transferDepartment',
@@ -38,7 +46,14 @@ export const PERMISSIONS_LIST = [
   'readDepartmentAssign',
   'updateDepartmentAssign',
   'deleteDepartmentAssign',
-  'restoreDepartmentAssign'
+  'restoreDepartmentAssign',
+
+  // Shift Assignment Data
+  'readShift',
+  'createShift',
+  'updateShift',
+  'deleteShift',
+  'restoreShift'
 ] as const
 
 // Automatically derive the TypeScript type from the array
