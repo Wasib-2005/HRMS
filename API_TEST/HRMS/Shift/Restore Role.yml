@@ -5,7 +5,7 @@ info:
 
 http:
   method: PATCH
-  url: http://localhost:5000/api/roles/6ad47d6e4af4dcb71a01a2f3/restore
+  url: http://localhost:5000/api/roles/6adb68be0cdd2db4593e7417/restore
   auth: inherit
 
 settings:
