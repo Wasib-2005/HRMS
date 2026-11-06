@@ -7,6 +7,7 @@
   "scripts": {
     "server": "npm run dev --prefix HRMS-Server",
     "client": "npm run dev --prefix HRMS-Ui",
+    "user": "node HRMS-Server/scripts/create-user.mjs",
     "dev": "concurrently --kill-others --prefix \"[{name}]\" --names \"BACKEND,FRONTEND\" --prefix-colors \"red,blue\" \"npm run server\" \"npm run client\"",
     "build": "npm run build --prefix HRMS-Server && npm run build --prefix HRMS-Ui",
     "start": "concurrently --kill-others --prefix \"[{name}]\" --names \"BACKEND,FRONTEND\" --prefix-colors \"red,blue\" \"npm run start --prefix HRMS-Server\" \"npm run start --prefix HRMS-Ui\""

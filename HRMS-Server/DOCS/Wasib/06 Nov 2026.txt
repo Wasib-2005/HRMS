@@ -1,0 +1,88 @@
+USER CREATION SCRIPT (HRMS-Server/scripts/create-user.mjs)
+============================================================
+
+PURPOSE
+-------
+Creates a Better Auth email/password user directly in MongoDB from the
+repository root. Supports optional assignment to an Admin role, including
+creating an Admin role with all currently listed application permissions.
+
+COMMAND
+-------
+Interactive:
+  pnpm user
+
+With email and password supplied:
+  pnpm user -e "user@email.com" -p "Asd@1234"
+
+Options:
+  -e, --email       User email
+  -p, --password    User password
+  -h, --help        Show help
+
+The backend HTTP server does not need to be running. MongoDB must be
+reachable, and HRMS-Server/.env must contain MONGO_URI. The script loads
+that environment file relative to its own location.
+
+INPUT AND VALIDATION
+--------------------
+- Prompts for any missing email and password.
+- Email is checked against a basic address pattern.
+- Password must be at least 8 characters and contain at least one ASCII
+  letter and one digit from 1 through 9.
+- Interactive password characters are masked with *; backspace removes
+  the last character and its mask.
+- Without a TTY, both email and password must be supplied as arguments.
+- The admin prompts require an interactive terminal. An empty response to
+  a yes/no question is treated as "no".
+- The new user's display name is the part of the email before @.
+
+USER CREATION
+-------------
+1. Connects a MongoDB client using MONGO_URI.
+2. Initializes Better Auth with the MongoDB adapter and email/password
+   signup enabled.
+3. Calls auth.api.signUpEmail, allowing Better Auth to create the user and
+   password credential records.
+4. Prints the created email.
+
+ADMIN ASSIGNMENT
+----------------
+After collecting credentials, asks whether the new user should be an
+admin.
+
+If no:
+  Creates a regular user and skips Admin role lookup.
+
+If yes:
+  Searches the roles collection for a case-insensitive "Admin" role whose
+  isDeleted field is not true. If found, stores its ID as a string in the
+  user's role field.
+
+If no Admin role is found:
+  Reports that it was not found and asks whether to create one. If approved,
+  inserts an active "Admin" role with every permission set to true, then
+  assigns the new role ID to the user. The new user's MongoDB _id is used
+  as the role's createdBy value.
+
+PERMISSIONS
+-----------
+The script's adminPermissions array currently contains all 42 keys from
+src/constants/permissions.constant.ts. If permissions are added or removed
+there, update the script list as well; otherwise a newly created Admin
+role will not exactly reflect the application's permission list.
+
+ERRORS AND OPERATIONAL NOTES
+----------------------------
+- Invalid email or password supplied on the command line exits with an
+  error; invalid interactive input is prompted again.
+- MongoDB connection, Better Auth signup, or role assignment errors are
+  reported and cause a non-zero exit.
+- The MongoDB client is closed after the creation flow, including on error.
+- User creation and Admin role setup are not a single database transaction.
+  If signup succeeds but role creation or assignment fails, the user may
+  remain in the database without the requested Admin assignment.
+- Admin role creation handles a duplicate-key conflict by re-reading an
+  active Admin role and assigning it if available.
+- The script stores the role ID as a string, matching the role field in
+  src/module/auth/user.model.ts.

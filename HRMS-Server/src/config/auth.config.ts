@@ -19,10 +19,11 @@ export const auth = betterAuth({
   database: mongodbAdapter(db, {
     client
   }),
+  secret: envConfig.betterAuthSecret,
+  baseURL: envConfig.betterAuthUrl,
   emailAndPassword: {
     enabled: true
   },
-  // Allow your frontend origins + localhost:5000 for Postman testing
   trustedOrigins: process.env.ALLOW_ORIGIN
     ? process.env.ALLOW_ORIGIN.split(',')
     : ['http://localhost:5000', 'http://localhost:3000']

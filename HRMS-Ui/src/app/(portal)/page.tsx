@@ -1,9 +1,7 @@
-const Home = () => {
-  return (
-    <div>
-      dashboard here
-    </div>
-  );
-};
+import { redirect } from "next/navigation";
 
-export default Home;
+export const instant = false;
+
+export default function Home() {
+  redirect("/dashboard");
+}

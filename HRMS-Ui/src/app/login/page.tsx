@@ -4,9 +4,32 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from "react";
 import { FaEye, FaEyeLowVision } from "react-icons/fa6";
+import { useRouter } from "next/navigation";
+import { signIn } from "@/lib/auth";
 
 const Login = () => {
     const [passwordVisible, setPasswordVisible] = useState(false);
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const router = useRouter();
+
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        setError("");
+        setIsSubmitting(true);
+
+        try {
+            await signIn(email, password);
+            router.replace("/dashboard");
+            router.refresh();
+        } catch (signInError) {
+            setError(signInError instanceof Error ? signInError.message : "Unable to sign in");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
         <main className="flex  h-[calc(100vh-4rem)] px-5 items-center justify-center   animate-fade-up animate-duration-[600ms] animate-ease-in">
@@ -14,7 +37,7 @@ const Login = () => {
 
 
                 <div className="flex items-center justify-center ">
-                    <form className="w-full max-w-sm space-y-12">
+                    <form className="w-full max-w-sm space-y-12" onSubmit={handleSubmit}>
                         <div className="space-y-1 text-center">
                             <Image
                                 src="/site_logo.svg"
@@ -43,6 +66,8 @@ const Login = () => {
                                     autoComplete="email"
                                     required
                                     placeholder="you@example.com"
+                                    value={email}
+                                    onChange={(event) => setEmail(event.target.value)}
                                     className="block w-full rounded-xl bg-[#f1f5f9] border border-slate-300 px-3.5 py-3 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-sky-600 focus:ring-4 focus:ring-sky-600/10"
                                 />
                             </div>
@@ -60,6 +85,8 @@ const Login = () => {
                                         autoComplete="current-password"
                                         required
                                         placeholder="Enter your password"
+                                        value={password}
+                                        onChange={(event) => setPassword(event.target.value)}
                                         className="block w-full rounded-xl border bg-[#f1f5f9] border-slate-300 px-3.5 py-3 pr-11 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-sky-600 focus:ring-4 focus:ring-sky-600/10"
                                     />
                                     <button
@@ -81,11 +108,13 @@ const Login = () => {
                                 </p>
 
                             </div>
+                            {error && <p className="text-sm text-red-600" role="alert">{error}</p>}
                             <button
                                 type="submit"
+                                disabled={isSubmitting}
                                 className="flex w-full justify-center rounded-lg bg-sky-700 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700"
                             >
-                                Sign in
+                                {isSubmitting ? "Signing in..." : "Sign in"}
                             </button>
                         </div>
                     </form>

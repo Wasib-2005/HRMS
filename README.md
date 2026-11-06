@@ -82,6 +82,22 @@ npm run server  # API only
 npm run client  # frontend only
 ```
 
+## Create a user
+
+With MongoDB configured in `HRMS-Server/.env`, create a Better Auth user interactively (the backend server does not need to be running):
+
+```bash
+pnpm user
+```
+
+The script asks for an email and a password (password characters are masked with `*`), then asks whether the user should be an admin. If no Admin role exists, it offers to create one with all permissions enabled. You can also supply the email and password directly; the admin questions remain interactive:
+
+```bash
+pnpm user -e "user@email.com" -p "Asd@1234"
+```
+
+The email must be valid. The password must be at least 8 characters and contain at least one letter and one digit from 1 to 9. The script creates the account with Better Auth directly in MongoDB. Its display name is derived from the part of the email before `@`. Admin setup also requires `MONGO_URI` to be configured.
+
 ## Build and production
 
 Build both apps from the repository root:
