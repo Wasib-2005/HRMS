@@ -17,7 +17,7 @@ const Login = () => {
                     <form className="w-full max-w-sm space-y-12">
                         <div className="space-y-1 text-center">
                             <Image
-                                src="site_logo.svg"
+                                src="/site_logo.svg"
                                 width={160}
                                 height={160}
                                 alt="EuITSols logo"
