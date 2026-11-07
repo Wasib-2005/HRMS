@@ -1,9 +1,9 @@
-const Profile = () => {
-  return (
-    <div>
-      page here
-    </div>
-  );
-};
+import ProfileClient from './ProfileClient'
 
-export default Profile;
+export const instant = false
+
+const Profile = () => {
+  return <ProfileClient />
+}
+
+export default Profile

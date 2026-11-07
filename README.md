@@ -14,6 +14,27 @@ Human Resource Management System with an Express/TypeScript API and a Next.js we
 
 The backend currently provides authentication, role and permission management, departments, department assignments, assets and asset assignments, holidays, and a health endpoint. The frontend is a Next.js app.
 
+## Frontend page titles
+
+Added November 8, 2026: the frontend uses `react-helmet-async` to set page titles from Client Components. The dashboard and profile pages currently set their titles this way:
+
+```tsx
+import { Helmet } from 'react-helmet-async'
+
+export default function ProfileClient() {
+  return (
+    <>
+      <Helmet>
+        <title>Profile | EuITSols</title>
+      </Helmet>
+      {/* Page content */}
+    </>
+  )
+}
+```
+
+Use Next.js `metadata` exports for Server Components. Route segment options such as `instant` must also be exported from a Server Component, not a file marked with `'use client'`.
+
 ## Prerequisites
 
 - Node.js 20.9 or newer

@@ -1,13 +1,7 @@
-import React from 'react';
+import DashboardClient from './DashboardClient'
 
-export const instant = false;
+export const instant = false
 
-const Dashboard = () => {
-    return (
-        <div>
-            hello
-        </div>
-    );
-};
-
-export default Dashboard;
+export default function Dashboard() {
+  return <DashboardClient />
+}
