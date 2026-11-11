@@ -1,0 +1,32 @@
+FRONTEND PAGE TITLES (HRMS-Ui)
+=============================
+
+DATE
+----
+08 Nov 2026
+
+UPDATE
+------
+Added react-helmet-async to HRMS-Ui to set document titles from Client
+Components. The Dashboard and Profile pages use Helmet with page-specific
+titles:
+
+  Dashboard | EuITSols
+  Profile | EuITSols
+
+USAGE
+-----
+Import Helmet from react-helmet-async and render a title within the
+Client Component:
+
+  import { Helmet } from 'react-helmet-async'
+
+  <Helmet>
+    <title>Profile | EuITSols</title>
+  </Helmet>
+
+NEXT.JS NOTES
+-------------
+- For Server Components, use Next.js metadata exports for page titles.
+- Route segment configuration such as `instant` must be exported from a
+  Server Component, not a module marked with 'use client'.

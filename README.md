@@ -14,6 +14,27 @@ Human Resource Management System with an Express/TypeScript API and a Next.js we
 
 The backend currently provides authentication, role and permission management, departments, department assignments, assets and asset assignments, holidays, and a health endpoint. The frontend is a Next.js app.
 
+## Frontend page titles
+
+Added November 8, 2026: the frontend uses `react-helmet-async` to set page titles from Client Components. The dashboard and profile pages currently set their titles this way:
+
+```tsx
+import { Helmet } from 'react-helmet-async'
+
+export default function ProfileClient() {
+  return (
+    <>
+      <Helmet>
+        <title>Profile | EuITSols</title>
+      </Helmet>
+      {/* Page content */}
+    </>
+  )
+}
+```
+
+Use Next.js `metadata` exports for Server Components. Route segment options such as `instant` must also be exported from a Server Component, not a file marked with `'use client'`.
+
 ## Prerequisites
 
 - Node.js 20.9 or newer
@@ -81,6 +102,22 @@ Run an app by itself if needed:
 npm run server  # API only
 npm run client  # frontend only
 ```
+
+## Create a user
+
+With MongoDB configured in `HRMS-Server/.env`, create a Better Auth user interactively (the backend server does not need to be running):
+
+```bash
+pnpm user
+```
+
+The script asks for an email and a password (password characters are masked with `*`), then asks whether the user should be an admin. If no Admin role exists, it offers to create one with all permissions enabled. You can also supply the email and password directly; the admin questions remain interactive:
+
+```bash
+pnpm user -e "user@email.com" -p "Asd@1234"
+```
+
+The email must be valid. The password must be at least 8 characters and contain at least one letter and one digit from 1 to 9. The script creates the account with Better Auth directly in MongoDB. Its display name is derived from the part of the email before `@`. Admin setup also requires `MONGO_URI` to be configured.
 
 ## Build and production
 
