@@ -19,6 +19,15 @@ export const auth = betterAuth({
   database: mongodbAdapter(db, {
     client
   }),
+  user: {
+    additionalFields: {
+      role: {
+        type: 'string',
+        required: false,
+        defaultValue: 'Employee'
+      }
+    }
+  },
   secret: envConfig.betterAuthSecret,
   baseURL: envConfig.betterAuthUrl,
   emailAndPassword: {
