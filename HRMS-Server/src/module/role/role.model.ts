@@ -3,6 +3,7 @@ import {
   PERMISSIONS_LIST,
   type PermissionKey
 } from '../../constants/permissions.constant.js'
+import { SYSTEM_ROLES } from '../../constants/roles.constant.js'
 import type { RoleInterface } from './role.interface.js'
 
 // Programmatically build the Mongoose permissions sub-object
@@ -19,6 +20,10 @@ const roleSchema = new Schema<RoleInterface>(
     name: {
       type: String,
       required: [true, 'Role name is required'],
+      enum: {
+        values: SYSTEM_ROLES,
+        message: '{VALUE} is not a valid system role. Allowed roles are: Admin, HR, Employee'
+      },
       trim: true
     },
     description: {

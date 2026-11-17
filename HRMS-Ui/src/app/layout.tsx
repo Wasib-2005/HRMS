@@ -27,16 +27,11 @@ export default function RootLayout ({
 }>) {
   return (
     <html
-      data-theme='light'
       lang='en'
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className='min-h-full flex flex-col'>
-        <div>{children}</div>
-
-        <p className='text-center text-sm text-slate-500'>
-          © 2027 EuitSols. All rights reserved.
-        </p>
+      <body className='min-h-full flex flex-col bg-white text-slate-800'>
+        <div className='flex-1'>{children}</div>
       </body>
     </html>
   )

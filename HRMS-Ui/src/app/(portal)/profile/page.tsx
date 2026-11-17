@@ -1,9 +1,10 @@
-import ProfileClient from './ProfileClient'
+import { Metadata } from "next";
+import ProfileClient from "./ProfileClient";
 
-export const instant = false
+export const metadata: Metadata = {
+  title: "My Profile | EuITSols HRMS",
+};
 
-const Profile = () => {
-  return <ProfileClient />
+export default function ProfilePage() {
+  return <ProfileClient />;
 }
-
-export default Profile

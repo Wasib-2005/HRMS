@@ -102,7 +102,7 @@ const Login = () => {
                                 
                                 <p className="text-right pb-4">
 
-                                    <Link href="/forgot-password" className=" text-sm font-semibold text-sky-700 transition hover:text-sky-800 ">
+                                    <Link href="/reset" className=" text-sm font-semibold text-sky-700 transition hover:text-sky-800 ">
                                         Forgot your password?
                                     </Link>
                                 </p>
@@ -112,10 +112,38 @@ const Login = () => {
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="flex w-full justify-center rounded-lg bg-sky-700 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700"
+                                className="flex w-full justify-center rounded-lg bg-sky-700 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700 cursor-pointer"
                             >
                                 {isSubmitting ? "Signing in..." : "Sign in"}
                             </button>
+
+                            {/* Quick Demo Role Selectors */}
+                            <div className="pt-4 border-t border-slate-200/80">
+                                <p className="text-xs text-slate-500 mb-2 font-medium text-center">Quick Demo Login (3 System Roles):</p>
+                                <div className="grid grid-cols-3 gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => { setEmail("admin@hrms.com"); setPassword("Admin@123456"); }}
+                                        className="px-2 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer"
+                                    >
+                                        Admin
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => { setEmail("hr@hrms.com"); setPassword("Hr@123456"); }}
+                                        className="px-2 py-1.5 text-xs font-semibold rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 transition cursor-pointer"
+                                    >
+                                        HR
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => { setEmail("employee@hrms.com"); setPassword("Employee@123456"); }}
+                                        className="px-2 py-1.5 text-xs font-semibold rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition cursor-pointer"
+                                    >
+                                        Employee
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>
